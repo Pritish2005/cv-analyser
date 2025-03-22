@@ -116,16 +116,20 @@ export default function OverallAnalysis() {
       {analysis && (
         <div className="space-y-8 mt-8">
           <div className="bg-white p-8 rounded-2xl shadow-lg border-l-8 border-[#ed1c24]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Overall Score
-              </h2>
-              <div className="w-24 h-24 bg-gradient-to-r from-[#ed1c24] to-[#f37121] rounded-full flex items-center justify-center">
-                <span className="text-3xl font-bold text-white">
-                  {analysis.Overall_Score}
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center justify-between">
+  <h2 className="text-2xl font-bold text-gray-800">Overall Score</h2>
+  <div className="relative">
+    <div className={`w-24 h-24 rounded-full flex items-center justify-center ${
+      analysis.Overall_Score >= 75 ? 'bg-gradient-to-r from-green-400 to-green-600' :
+      analysis.Overall_Score >= 65 ? 'bg-gradient-to-r from-amber-400 to-amber-500' :
+      'bg-gradient-to-r from-[#ed1c24] to-[#f37121]'
+    }`}>
+      <span className="text-3xl font-bold text-white">
+        {analysis.Overall_Score}
+      </span>
+    </div>
+  </div>
+</div>
           </div>
 
           {analysis && analysis.Overall_Score < 75 && (

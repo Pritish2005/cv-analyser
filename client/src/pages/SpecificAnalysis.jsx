@@ -1,4 +1,3 @@
-// SpecificAnalysis.jsx
 import { useState } from 'react';
 import axios from 'axios';
 
@@ -7,7 +6,6 @@ export default function SpecificAnalysis() {
   const [jobDesc, setJobDesc] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [analysis, setAnalysis] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +34,6 @@ export default function SpecificAnalysis() {
     }
     return name;
   };
-
   return (
     <div className="max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-[#ed1c24]">Job-Specific Analysis</h2>
@@ -92,11 +89,25 @@ export default function SpecificAnalysis() {
       </form>
 
       {result && (
-        <div className="mt-8 p-6 bg-white rounded-xl shadow-lg">
-          <h3 className="text-xl font-bold mb-4 text-[#ed1c24]">
-            Compatibility Score: {result.score}/100
-          </h3>
-          {analysis && analysis.Overall_Score < 75 && (
+        <div className="space-y-8 mt-8">
+          {/* Score Display */}
+          <div className="bg-white p-8 rounded-2xl shadow-lg border-l-8 border-[#ed1c24]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-800">Compatibility Score</h2>
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center ${
+                result.score >= 75 ? 'bg-gradient-to-r from-green-400 to-green-600' :
+                result.score >= 65 ? 'bg-gradient-to-r from-amber-400 to-amber-500' :
+                'bg-gradient-to-r from-[#ed1c24] to-[#f37121]'
+              }`}>
+                <span className="text-3xl font-bold text-white">
+                  {result.score}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Improvement Prompt */}
+          {result.score < 75 && (
             <div className="bg-[#fee] border-l-4 border-[#ed1c24] p-4 rounded-lg mb-8 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-[#ed1c24] mb-2">
@@ -107,15 +118,15 @@ export default function SpecificAnalysis() {
                 </p>
               </div>
               <button
-                onClick={() =>
-                  (window.location.href = "https://smarrtifai.com/")
-                }
+                onClick={() => window.open("https://smarrtifai.com/", "_blank")}
                 className="px-6 py-2 bg-[#ed1c24] text-white rounded-lg hover:bg-[#cc1a1a] transition-colors"
               >
                 Learn How
               </button>
             </div>
           )}
+
+          {/* Analysis Results */}
           <div className="space-y-4">
             <div>
               <h4 className="font-semibold mb-2">Strengths:</h4>

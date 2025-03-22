@@ -121,10 +121,9 @@ app.post('/match-job', upload.single('resume'), async (req, res) => {
   }
 });
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+
+
+mongoose.connect(process.env.MONGODB_URI);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
