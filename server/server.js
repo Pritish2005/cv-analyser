@@ -3,7 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const pdf = require('pdf-parse');
+const mongoose = require('mongoose');
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Analysis = require('./model/analysisData');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -40,7 +43,7 @@ const PROMPT =`You are an advanced AI-based Resume Evaluator. Analyze the resume
         **Return only valid JSON with no extra text, explanations, or markdown formatting.** 
 ` ;
 
-console.log('PROMPT'+PROMPT)
+// console.log('PROMPT'+PROMPT)
 
 app.post('/analyze', upload.single('resume'), async (req, res) => {
   try {
@@ -59,12 +62,68 @@ app.post('/analyze', upload.single('resume'), async (req, res) => {
     const jsonStart = responseText.indexOf('{');
     const jsonEnd = responseText.lastIndexOf('}') + 1;
     const jsonString = responseText.slice(jsonStart, jsonEnd);
-    console.log(JSON.parse(jsonString))
+    const analysis = JSON.parse(jsonString);
+
+    const newAnalysis = new Analysis({
+      overallScore: analysis.score,
+      analysisData: analysis,
+      analysisType: 'overall'
+    })
+
+    await newAnalysis.save();
+
     res.json(JSON.parse(jsonString));
     
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Job Matching Endpoint
+app.post('/match-job', upload.single('resume'), async (req, res) => {
+  try {
+    const jobDescription = req.body.jobDescription;
+    const pdfData = await pdf(req.file.buffer);
+    
+    const prompt = `
+    Analyze how well this resume matches the following job description:
+    ${jobDescription}
+
+    Return JSON response with:
+    {
+      "score": <compatibility_score_out_of_100>,
+      "strengths": ["list", "of", "matching", "points"],
+      "improvements": ["list", "of", "gap", "areas"]
+    }
+    `;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const result = await model.generateContent(prompt + pdfData.text);
+    let responseText = result.response.text().trim();
+    
+    // Improved JSON extraction
+    const jsonStart = responseText.indexOf('{');
+    const jsonEnd = responseText.lastIndexOf('}') + 1;
+    const jsonString = responseText.slice(jsonStart, jsonEnd);
+    const analysis = JSON.parse(jsonString);
+
+    const newAnalysis = new Analysis({
+      overallScore: analysis.score,
+      analysisData: analysis,
+      analysisType: 'specific'
+    })
+
+    await newAnalysis.save();
+
+    res.json(JSON.parse(jsonString));
+  } catch (error) {
+    res.status(500).json({ error: 'Job matching failed' });
+  }
+});
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
 const PORT = process.env.PORT || 3000;
