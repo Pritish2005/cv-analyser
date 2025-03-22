@@ -17,7 +17,7 @@ export default function OverallAnalysis() {
       formData.append("resume", file);
 
       const { data } = await axios.post(
-        "http://localhost:3001/analyze",
+        'https://resume-analyser-backend-vlsz.onrender.com/analyze', 
         formData
       );
       setAnalysis(data);

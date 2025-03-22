@@ -18,7 +18,7 @@ export default function SpecificAnalysis() {
       formData.append('resume', file);
       formData.append('jobDescription', jobDesc);
 
-      const { data } = await axios.post('http://localhost:3001/match-job', formData);
+      const { data } = await axios.post('https://resume-analyser-backend-vlsz.onrender.com/match-job', formData);
       setResult(data);
     } catch (error) {
       alert(error.response?.data?.error || 'Analysis failed');
