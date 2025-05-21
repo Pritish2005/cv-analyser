@@ -11,6 +11,10 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}>
+        {/* ✅ Default route when path is exactly '/' */}
+        <Route index element={<OverallAnalysis />} />
+        
+        {/* Other routes */}
         <Route path="specific-analysis" element={<SpecificAnalysis />} />
         <Route path="overall-analysis" element={<OverallAnalysis />} />
       </Route>
