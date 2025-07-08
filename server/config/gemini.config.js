@@ -27,6 +27,7 @@ Return only valid JSON. Do not include any explanations, markdown, or text outsi
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 const getModelReponse=async(data)=>{
+  //  console.log("data",data)
     const result = await model.generateContent(PROMPT + data.text);
     let responseText = result.response.text().trim();
 

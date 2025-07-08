@@ -4,6 +4,7 @@ const PdfParse = require('pdf-parse');
 const resumeModel = require('../model/resume.model.js');
 const crypto = require('crypto');
 const redisClient = require('../config/redisClient.js');
+const resumeQueue=require( '../config/resumeQueue.js'); 
 
 // const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
 
@@ -28,7 +29,7 @@ const handleResumeUpload = async (req, res) => {
     if (cachedFeedback) {
       return res.status(200).json({
         status: 'cached',
-        feedback: JSON.parse(cachedFeedback),
+        // feedback: JSON.parse(cachedFeedback),
         source: 'redis',
         hash: resumeHash
       });
@@ -38,7 +39,7 @@ const handleResumeUpload = async (req, res) => {
     const existing = await resumeModel.findOne({ hash: resumeHash, userId: req.userId });
     if (existing) {
       // Storing in Redis for next time
-      await redisClient.setEx(redisKey, 60, JSON.stringify(existing.feedback)); // TTL
+      await redisClient.setEx(redisKey, 60, 'checking redis client' ); // TTL
       return res.status(200).json({
         status: 'cached',
         feedback: existing.feedback,
@@ -48,49 +49,42 @@ const handleResumeUpload = async (req, res) => {
     }
 
     if(!existing){
-      const analysis=await getModelReponse(data)
-      console.log('analysis',analysis)
+      // const analysis=await getModelReponse(data)
+      // console.log('analysis',analysis)
+      const dummyFeedback={
+        score:0,
+        strengths:["test"],
+        improvements:["test"]
+      }
       const newAnalysis= new resumeModel({
         id:uuidv4(),
         userId: req.userId,
+        feedback:dummyFeedback,
         resumeHash: resumeHash,
         status: 'processing',
-        feedback: analysis.feedback
       });
 
+      
       await resumeModel.create(newAnalysis);
+
+      console.log('data before queue',data)
+
+      await resumeQueue.add('analyze-resume', {
+        userId: req.userId,
+        hash: resumeHash,
+        resumeData: data
+      });
+
       
-      // 4. Cache to Redis
-      await redisClient.setEx(redisKey, 60, JSON.stringify(analysis.feedback)); // TTL
       
-      return res.status(201).json({
-        status: 'done',
-        feedback: analysis.feedback,
-        source: 'llm',
+      // await redisClient.setEx(redisKey, 60, 'checking redis client' ); // TTL
+      
+      return res.status(202).json({
+        status: 'queued',
+        message: 'Resume uploaded and queued for analysis.',
         hash: resumeHash
       });
     }
-
-
-    
-    // await resumeModel.create({
-    //   userId: req.userId,
-    //   hash: resumeHash,
-    //   status: 'processing',
-    //   feedback: null
-    // });
-
-    // await resumeQueue.add('analyze', {
-    //   userId: req.userId,
-    //   hash: resumeHash,
-    //   resumeText: data.text
-    // });
-
-    // res.status(202).json({
-    //   status: 'queued',
-    //   hash: resumeHash
-    // });
-    
 
   } catch (error) {
     console.error(error);

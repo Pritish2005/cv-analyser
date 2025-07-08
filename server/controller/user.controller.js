@@ -28,7 +28,7 @@ const register = async (req, res) => {
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role },
       process.env.JWT_SECRET || 'default_secret',
-      { expiresIn: '1h' }
+      { expiresIn: '100h' }
     );
 
     const { password: pw, ...userWithoutPassword } = newUser.toObject();
