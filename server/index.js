@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config()
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -10,7 +10,6 @@ const resumeRoute= require('./routes/resume.route.js');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
-app.use(dotenv.config());
 app.use(cors());
 app.use(express.json());
 

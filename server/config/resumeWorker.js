@@ -1,6 +1,7 @@
 const {Worker}= require('bullmq');
 const mongoose = require('mongoose');
 const resumeModel = require('../model/resume.model.js');
+require('dotenv').config()
 const { getModelReponse } = require('../config/gemini.config.js');
 const redisClient = require('../config/redisClient.js');
 

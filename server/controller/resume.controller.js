@@ -29,7 +29,7 @@ const handleResumeUpload = async (req, res) => {
     if (cachedFeedback) {
       return res.status(200).json({
         status: 'cached',
-        // feedback: JSON.parse(cachedFeedback),
+        feedback: JSON.parse(cachedFeedback),
         source: 'redis',
         hash: resumeHash
       });
@@ -39,7 +39,7 @@ const handleResumeUpload = async (req, res) => {
     const existing = await resumeModel.findOne({ hash: resumeHash, userId: req.userId });
     if (existing) {
       // Storing in Redis for next time
-      await redisClient.setEx(redisKey, 60, 'checking redis client' ); // TTL
+      await redisClient.setEx(redisKey, 120, existing.feedback ); // TTL
       return res.status(200).json({
         status: 'cached',
         feedback: existing.feedback,
