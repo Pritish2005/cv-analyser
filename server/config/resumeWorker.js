@@ -14,9 +14,10 @@ const resumeWorker = new Worker(
     const { userId, hash, resumeData } = job.data;
 
     try {
-        console.log('from the worker',resumeData)
+        // console.log('from the worker',resumeData)
       const feedback = await getModelReponse(resumeData);
         
+      //updating feedback in mongodb
        await resumeModel.updateOne(
         { userId, hash },
         { 
@@ -28,6 +29,7 @@ const resumeWorker = new Worker(
         }
       );
 
+      // storing feedback in redis
       const redisKey = `feedback:${userId}:${hash}`;
       await redisClient.setEx(redisKey, 120, JSON.stringify(feedback)); // TTL
 

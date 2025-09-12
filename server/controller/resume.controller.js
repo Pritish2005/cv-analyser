@@ -56,16 +56,23 @@ const handleResumeUpload = async (req, res) => {
         strengths:["test"],
         improvements:["test"]
       }
-      const newAnalysis= new resumeModel({
-        id:uuidv4(),
+      // const newAnalysis=new resumeModel({
+      //   id:uuidv4(),
+      //   userId: req.userId,
+      //   feedback:dummyFeedback,
+      //   resumeHash: resumeHash,
+      //   status: 'processing',
+      // });
+
+      
+      // await resumeModel.create(newAnalysis);
+      await resumeModel.create({
+        id: uuidv4(),
         userId: req.userId,
-        feedback:dummyFeedback,
+        feedback: dummyFeedback,
         resumeHash: resumeHash,
         status: 'processing',
       });
-
-      
-      await resumeModel.create(newAnalysis);
 
       console.log('data before queue',data)
 
