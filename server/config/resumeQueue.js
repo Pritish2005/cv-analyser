@@ -1,19 +1,12 @@
-// import { Queue } from 'bullmq';
-const {Queue} = require('bullmq');
-// import { createClient } from 'redis';
-const redisClient= require( './redisClient');  
+const { Queue } = require('bullmq');
 
-
-// const connection = createClient({ url: 'redis://localhost:6379' });
-// await connection.connect();
-
-
-const resumeQueue = new Queue('resume-processing',{
-    connection:{
-        host: 'localhost',
-        port: 6379,
-    }
-    }
-    );
+const resumeQueue = new Queue('resume-processing', {
+  connection: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: Number(process.env.REDIS_PORT) || 6379,
+    // automatically try to reconnect
+    maxRetriesPerRequest: null,
+  }
+});
 
 module.exports = resumeQueue;
